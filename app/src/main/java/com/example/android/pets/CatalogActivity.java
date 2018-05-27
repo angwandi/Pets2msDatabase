@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetDbHelper;
-import com.example.android.pets.data.ShelterContract;
 
 import static com.example.android.pets.data.ShelterContract.*;
 import static com.example.android.pets.data.ShelterContract.PetEntry.*;
@@ -73,16 +72,15 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_GENDER,
                 PetEntry.COLUMN_PET_WEIGHT,
         };
-        Cursor cursor = db.query(
+        TextView displayView = findViewById(R.id.text_view_pet);
+        try (Cursor cursor = db.query(
                 PetEntry.TABLE_NAME,
                 projection,
                 null,
                 null,
                 null,
                 null,
-                null);
-        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-        try {
+                null)) {
             // Create a header in the Text View that looks like this:
             //
             // The pets table contains <number of rows in Cursor> pets.
@@ -118,11 +116,9 @@ public class CatalogActivity extends AppCompatActivity {
                         currentGender + " - " +
                         currentWeight));
             }
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
         }
+        // Always close the cursor when you're done reading from it. This releases all its
+        // resources and makes it invalid.
     }
 
     /**

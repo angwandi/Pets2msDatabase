@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.example.android.pets.data.PetDbHelper;
 
-import static com.example.android.pets.data.ShelterContract.*;
 import static com.example.android.pets.data.ShelterContract.PetEntry.*;
 
 /**
@@ -66,15 +65,15 @@ public class CatalogActivity extends AppCompatActivity {
         // Create and/or open a database to read from it
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         String[] projection = {
-                PetEntry._ID,
-                PetEntry.COLUMN_PET_NAME,
-                PetEntry.COLUMN_PET_BREED,
-                PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT,
+                _ID,
+                COLUMN_PET_NAME,
+                COLUMN_PET_BREED,
+                COLUMN_PET_GENDER,
+                COLUMN_PET_WEIGHT,
         };
         TextView displayView = findViewById(R.id.text_view_pet);
         try (Cursor cursor = db.query(
-                PetEntry.TABLE_NAME,
+                TABLE_NAME,
                 projection,
                 null,
                 null,
@@ -89,17 +88,17 @@ public class CatalogActivity extends AppCompatActivity {
             // In the while loop below, iterate through the rows of the cursor and display
             // the information from each column in this order.
             displayView.setText("The pets table contains " + cursor.getCount() + " pets.\n\n");
-            displayView.append(PetEntry._ID + " - " +
-                    PetEntry.COLUMN_PET_NAME + " - " +
-                    PetEntry.COLUMN_PET_BREED + " - " +
-                    PetEntry.COLUMN_PET_GENDER + " - " +
-                    PetEntry.COLUMN_PET_WEIGHT + " \n ");
+            displayView.append(_ID + " - " +
+                    COLUMN_PET_NAME + " - " +
+                    COLUMN_PET_BREED + " - " +
+                    COLUMN_PET_GENDER + " - " +
+                    COLUMN_PET_WEIGHT + " \n ");
             // Figure out the index of each column
-            int idColumnIndex = cursor.getColumnIndex(PetEntry._ID);
-            int nameColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME);
-            int breedColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED);
-            int genderColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER);
-            int weightColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT);
+            int idColumnIndex = cursor.getColumnIndex(_ID);
+            int nameColumnIndex = cursor.getColumnIndex(COLUMN_PET_NAME);
+            int breedColumnIndex = cursor.getColumnIndex(COLUMN_PET_BREED);
+            int genderColumnIndex = cursor.getColumnIndex(COLUMN_PET_GENDER);
+            int weightColumnIndex = cursor.getColumnIndex(COLUMN_PET_WEIGHT);
             // Iterate through all the returned rows in the cursor
             while (cursor.moveToNext()) {
                 // Use that index to extract the String or Int value of the word

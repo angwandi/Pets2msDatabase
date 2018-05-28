@@ -1,22 +1,7 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.android.pets;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -30,8 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.android.pets.data.PetDbHelper;
-import com.example.android.pets.data.ShelterContract.PetEntry;
+import com.example.android.pets.data.PetContract.PetEntry;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -54,20 +38,21 @@ public class EditorActivity extends AppCompatActivity {
      */
     private Spinner mGenderSpinner;
     /**
-     * Gender of the pet. The possible values are:
-     * 0 for unknown gender, 1 for male, 2 for female.
+     * Gender of the pet. The possible valid values are in the PetContract.java file:
+     * {@link PetEntry#GENDER_UNKNOWN}, {@link PetEntry#GENDER_MALE}, or
+     * {@link PetEntry#GENDER_FEMALE}.
      */
-    private int mGender = 0;
+    private int mGender = PetEntry.GENDER_UNKNOWN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
         // Find all relevant views that we will need to read user input from
-        mNameEditText = findViewById(R.id.edit_pet_name);
-        mBreedEditText = findViewById(R.id.edit_pet_breed);
-        mWeightEditText = findViewById(R.id.edit_pet_weight);
-        mGenderSpinner = findViewById(R.id.spinner_gender);
+        mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
+        mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
+        mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
+        mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
         setupSpinner();
     }
 
@@ -90,11 +75,11 @@ public class EditorActivity extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = PetEntry.GENDER_MALE; // Male
+                        mGender = PetEntry.GENDER_MALE;
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = PetEntry.GENDER_FEMALE; // Female
+                        mGender = PetEntry.GENDER_FEMALE;
                     } else {
-                        mGender = PetEntry.GENDER_UNKNOWN; // Unknown
+                        mGender = PetEntry.GENDER_UNKNOWN;
                     }
                 }
             }
@@ -102,7 +87,7 @@ public class EditorActivity extends AppCompatActivity {
             // Because AdapterView is an abstract class, onNothingSelected must be defined
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                mGender = 0; // Unknown
+                mGender = PetEntry.GENDER_UNKNOWN;
             }
         });
     }
@@ -117,10 +102,6 @@ public class EditorActivity extends AppCompatActivity {
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
         int weight = Integer.parseInt(weightString);
-        // Create database helper
-        PetDbHelper mDbHelper = new PetDbHelper(this);
-        // Gets the database in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
         ContentValues values = new ContentValues();
@@ -128,15 +109,17 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_BREED, breedString);
         values.put(PetEntry.COLUMN_PET_GENDER, mGender);
         values.put(PetEntry.COLUMN_PET_WEIGHT, weight);
-        // Insert a new row for pet in the database, returning the ID of that new row.
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        // Insert a new pet into the provider, returning the content URI for the new pet.
+        Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
         // Show a toast message depending on whether or not the insertion was successful
-        if (newRowId == -1) {
-            // If the row ID is -1, then there was an error with insertion.
-            Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
+        if (newUri == null) {
+            // If the new content URI is null, then there was an error with insertion.
+            Toast.makeText(this, getString(R.string.editor_insert_pet_failed),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "Pet saved with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+            // Otherwise, the insertion was successful and we can display a toast.
+            Toast.makeText(this, getString(R.string.editor_insert_pet_successful),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -154,9 +137,9 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Save Pet to the database
+                // Save pet to database
                 insertPet();
-                //Exit Activity
+                // Exit activity
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option

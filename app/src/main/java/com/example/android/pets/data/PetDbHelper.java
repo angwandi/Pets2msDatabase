@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static com.example.android.pets.data.ShelterContract.*;
+import static com.example.android.pets.data.PetContract.*;
 
 /**
  * Database helper for Pets app. Manages database creation and version management.

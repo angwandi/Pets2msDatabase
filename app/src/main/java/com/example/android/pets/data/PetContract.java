@@ -1,16 +1,19 @@
 package com.example.android.pets.data;
 
-import android.content.ContentResolver;
 import android.net.Uri;
+import android.content.ContentResolver;
 import android.provider.BaseColumns;
 
 /**
  * API Contract for the Pets app.
  */
 public final class PetContract {
+    // To prevent someone from accidentally instantiating the contract class,
+    // give it an empty constructor.
+    private PetContract() {
+    }
+
     /**
-     * Content Authority used to help identify the {@link PetProvider} ContentProvider
-     * <p>
      * The "Content authority" is a name for the entire content provider, similar to the
      * relationship between a domain name and its website.  A convenient string to use for the
      * content authority is the package name for the app, which is guaranteed to be unique on the
@@ -21,7 +24,7 @@ public final class PetContract {
      * Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
      * the content provider.
      */
-    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     /**
      * Possible path (appended to base content URI for possible URI's)
      * For instance, content://com.example.android.pets/pets/ is a valid path for
@@ -29,11 +32,6 @@ public final class PetContract {
      * as the ContentProvider hasn't been given any information on what to do with "staff".
      */
     public static final String PATH_PETS = "pets";
-
-    // To prevent someone from accidentally instantiating the contract class,
-    // give it an empty constructor.
-    private PetContract() {
-    }
 
     /**
      * Inner class that defines constant values for the pets database table.
@@ -103,7 +101,10 @@ public final class PetContract {
          * or {@link #GENDER_FEMALE}.
          */
         public static boolean isValidGender(int gender) {
-            return gender == GENDER_UNKNOWN || gender == GENDER_MALE || gender == GENDER_FEMALE;
+            if (gender == GENDER_UNKNOWN || gender == GENDER_MALE || gender == GENDER_FEMALE) {
+                return true;
+            }
+            return false;
         }
     }
 }
